@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="DEBUG">
+    <Properties>
+        <Property name="log-path">logs</Property>
+    </Properties>
+    <Appenders>
+        <File name="Simple"
+              fileName="${log-path}/Memory_${date:yyyy-MM-dd HHmmss}.log">
+            <PatternLayout pattern="%d %p %c{1.} [%t] %m%n" />
+        </File>
+    </Appenders>
+    <Loggers>
+        <Root level="all">
+            <AppenderRef ref="Simple" />
+        </Root>
+    </Loggers>
+</Configuration>

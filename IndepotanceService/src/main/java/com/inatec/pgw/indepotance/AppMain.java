@@ -25,7 +25,7 @@ public class AppMain {
 
     public static void main(String [] args) {
         final Runtime runtime = Runtime.getRuntime();
-        final Storage storage = new CompressedStorage();
+        final Storage storage = new HazelcastStorage();
         final KeyProvider keyProvider = new SimpleKeyProvider();
 
 //        logger.debug("Key provider - {}; Storage - {}", keyProvider.getClass().getSimpleName(), storage.getClass().getSimpleName());
@@ -34,9 +34,9 @@ public class AppMain {
         long start = System.currentTimeMillis();
 
         final int threadsCount = 1;
-//        final int transactionsCount = 1000000;
+        final int transactionsCount = 1000000;
 //        final int transactionsCount = 43200000;
-        final int transactionsCount = 1000;
+//        final int transactionsCount = 1000;
 
         ExecutorService executor = Executors.newFixedThreadPool(threadsCount);
 

@@ -17,8 +17,10 @@ import java.util.concurrent.Executors;
  * Created by Sergey on 02.11.2015.
  */
 public class AppMain {
-    private static Logger logger = LogManager.getLogger(AppMain.class);
-    static DecimalFormat decFormat = new DecimalFormat("0000.00");
+//    private static Logger logger = LogManager.getLogger(AppMain.class);
+    private static Logger csvLogger = LogManager.getLogger("csv");
+    static DecimalFormat decFormat = new DecimalFormat("#.##");
+    static DecimalFormat memoryFormat = new DecimalFormat("#.###");
 
 
     public static void main(String [] args) {
@@ -26,14 +28,15 @@ public class AppMain {
         final Storage storage = new CompressedStorage();
         final KeyProvider keyProvider = new SimpleKeyProvider();
 
-        logger.debug("Key provider - {}; Storage - {}", keyProvider.getClass(), storage.getClass());
+//        logger.debug("Key provider - {}; Storage - {}", keyProvider.getClass().getSimpleName(), storage.getClass().getSimpleName());
+        csvLogger.debug("Key provider | Storage | # | Memory Used [MB] | Insert time [ms] | Read time [ms]");
 
         long start = System.currentTimeMillis();
 
-        final int threadsCount = 4;
+        final int threadsCount = 1;
 //        final int transactionsCount = 1000000;
-        final int transactionsCount = 43200000;
-//        final int transactionsCount = 40;
+//        final int transactionsCount = 43200000;
+        final int transactionsCount = 1000;
 
         ExecutorService executor = Executors.newFixedThreadPool(threadsCount);
 
@@ -50,7 +53,7 @@ public class AppMain {
                         storage.put(key, transaction);
                         long finishTime = System.nanoTime();
 
-                        long memory = (runtime.totalMemory() - runtime.freeMemory()) / (1024);
+                        long memory = (runtime.totalMemory() - runtime.freeMemory());
 
                         long startLoadTime = System.nanoTime();
                         key = keyProvider.getKey(transaction);
@@ -61,10 +64,10 @@ public class AppMain {
                         if (!loaded.equals(transaction)) {
                             throw new IllegalStateException("Transactions don't match!");
                         }
-
+/*
                         logger.debug("{} - {} Kb; Put:['{}'ns + '{}'ns = '{}'ns] Read:['{}'ns + '{}'ns = '{}'ns]. Key - [{}] transaction [{}]",
                                 i + 1,
-                                memory,
+                                memory / (1024),
                                 putStartTime - keyStartTime,
                                 finishTime - putStartTime,
                                 finishTime - keyStartTime,
@@ -74,6 +77,14 @@ public class AppMain {
                                 finishLoadTime - startLoadTime,
                                 key,
                                 transaction);
+*/
+                        csvLogger.debug("{} | {} | {} | {} | {} | {}",
+                                keyProvider.getClass().getSimpleName(),
+                                storage.getClass().getSimpleName(),
+                                i+1,
+                                memoryFormat.format(((double)memory) / (1024*1024)),
+                                decFormat.format((double)(finishTime-keyStartTime)/1000000),
+                                decFormat.format((double)(finishLoadTime-startLoadTime)/1000000));
                     }
                     System.out.println("Tread finished");
                 }
@@ -95,11 +106,12 @@ public class AppMain {
 
 
         System.out.println("Finished in " + (finish - start) + "ms");
-        logger.debug(
-                "Threads count = {}; Total transactions count = {}; Total time = {}ms",
-                threadsCount, transactionsCount, (finish-start));
+//        logger.debug(
+//                "Threads count = {}; Total transactions count = {}; Total time = {}ms",
+//                threadsCount, transactionsCount, (finish-start));
     }
 
+/*
     private static String printOutTransaction(Transaction transaction) {
         StringBuilder out = new StringBuilder();
 
@@ -131,4 +143,5 @@ public class AppMain {
 
         return out.toString();
     }
+*/
 }

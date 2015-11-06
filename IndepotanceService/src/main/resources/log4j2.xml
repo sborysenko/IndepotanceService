@@ -5,11 +5,20 @@
     </Properties>
     <Appenders>
         <File name="Simple"
-              fileName="${log-path}/Memory_${date:yyyy-MM-dd HHmmss}.log">
+              fileName="${log-path}/Memory_${date:yyyy-MM-dd HHmm}.log">
             <PatternLayout pattern="%d %p %c{1.} [%t] %m%n" />
         </File>
+        <File name="CSV"
+              fileName="${log-path}/Memory_${date:yyyy-MM-dd HHmm}_CSV.log">
+            <PatternLayout pattern="%m%n" />
+        </File>
+
     </Appenders>
     <Loggers>
+        <Logger name="csv" level="all" additivity="false">
+            <AppenderRef ref="CSV"/>
+        </Logger>
+
         <Root level="all">
             <AppenderRef ref="Simple" />
         </Root>

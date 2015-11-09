@@ -17,7 +17,7 @@ import java.util.concurrent.Executors;
  * Created by Sergey on 02.11.2015.
  */
 public class AppMain {
-//    private static Logger logger = LogManager.getLogger(AppMain.class);
+    private static Logger logger = LogManager.getLogger(AppMain.class);
     private static Logger csvLogger = LogManager.getLogger("csv");
     static DecimalFormat decFormat = new DecimalFormat("#.##");
     static DecimalFormat memoryFormat = new DecimalFormat("#.###");
@@ -25,18 +25,18 @@ public class AppMain {
 
     public static void main(String [] args) {
         final Runtime runtime = Runtime.getRuntime();
-        final Storage storage = new HazelcastStorage();
+        final Storage storage = new RedisStorage();
         final KeyProvider keyProvider = new SimpleKeyProvider();
 
 //        logger.debug("Key provider - {}; Storage - {}", keyProvider.getClass().getSimpleName(), storage.getClass().getSimpleName());
-        csvLogger.debug("Key provider | Storage | # | Memory Used [MB] | Insert time [ms] | Read time [ms]");
+        csvLogger.debug("Threads | Key provider | Storage | # | Memory Used [MB] | Insert time [ms] | Read time [ms]");
 
         long start = System.currentTimeMillis();
 
-        final int threadsCount = 1;
-        final int transactionsCount = 1000000;
-//        final int transactionsCount = 43200000;
-//        final int transactionsCount = 1000;
+        final int threadsCount = 50;
+//        final int transactionsCount = 1000000;
+        final int transactionsCount = 43200000;
+//        final int transactionsCount = 10;
 
         ExecutorService executor = Executors.newFixedThreadPool(threadsCount);
 
@@ -45,11 +45,12 @@ public class AppMain {
             executor.submit(new Runnable() {
                 public void run() {
                     for (int i = 0; i < (transactionsCount / threadsCount); i++) {
+                        System.out.println("insert item : "  + (i+1));
+
                         Transaction transaction = generator.generateTransaction();
 
                         long keyStartTime = System.nanoTime();
                         String key = keyProvider.getKey(transaction);
-                        long putStartTime = System.nanoTime();
                         storage.put(key, transaction);
                         long finishTime = System.nanoTime();
 
@@ -57,31 +58,19 @@ public class AppMain {
 
                         long startLoadTime = System.nanoTime();
                         key = keyProvider.getKey(transaction);
-                        long keyFinished = System.nanoTime();
                         Transaction loaded = storage.get(key);
                         long finishLoadTime = System.nanoTime();
 
-                        if (!loaded.equals(transaction)) {
-                            throw new IllegalStateException("Transactions don't match!");
+                        if (loaded != null) {
+                            if (loaded.getTransactionID() != transaction.getTransactionID()) {
+                                throw new IllegalStateException("Transactions don't match!");
+                            }
                         }
-/*
-                        logger.debug("{} - {} Kb; Put:['{}'ns + '{}'ns = '{}'ns] Read:['{}'ns + '{}'ns = '{}'ns]. Key - [{}] transaction [{}]",
-                                i + 1,
-                                memory / (1024),
-                                putStartTime - keyStartTime,
-                                finishTime - putStartTime,
-                                finishTime - keyStartTime,
-
-                                keyFinished - startLoadTime,
-                                finishLoadTime - keyFinished,
-                                finishLoadTime - startLoadTime,
-                                key,
-                                transaction);
-*/
-                        csvLogger.debug("{} | {} | {} | {} | {} | {}",
+                        csvLogger.debug("{} | {} | {} | {} | {} | {} | {}",
+                                threadsCount,
                                 keyProvider.getClass().getSimpleName(),
                                 storage.getClass().getSimpleName(),
-                                i+1,
+                                (i+1)*threadsCount,
                                 memoryFormat.format(((double)memory) / (1024*1024)),
                                 decFormat.format((double)(finishTime-keyStartTime)/1000000),
                                 decFormat.format((double)(finishLoadTime-startLoadTime)/1000000));

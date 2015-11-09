@@ -17,7 +17,7 @@ public class TransactionGenerator {
         Transaction transaction = new Transaction();
 
         transaction.setTransactionID(random.nextInt(1000000)+1);
-        transaction.setMerchantID(random.nextInt(100)+1);
+        transaction.setMerchantID(random.nextInt(40)+10);
         transaction.setTerminalID(random.nextInt(10000)+1);
         transaction.setTransactionCurrency(getRandomCurrency(random));
         transaction.setBaseCurrency("USD");

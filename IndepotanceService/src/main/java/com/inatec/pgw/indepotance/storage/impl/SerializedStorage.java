@@ -14,12 +14,12 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Created by Sergey on 03.11.2015.
  */
-public class SerializedStorage implements Storage {
+public class SerializedStorage extends AbstractInMemoryStorage {
     ConcurrentHashMap<String, Wrapper> map = new ConcurrentHashMap();
 
     public Transaction get(String transactionKey) {
         try {
-            Wrapper wrapper = map.get(transactionKey);
+            Wrapper wrapper = (Wrapper) getImpl(transactionKey);
 
             byte[] buffer = wrapper.getData();
 
@@ -43,7 +43,7 @@ public class SerializedStorage implements Storage {
 
             Wrapper wrapper = new Wrapper(baos.toByteArray());
 
-            map.put(transactionKey, wrapper);
+            putImpl(transactionKey, wrapper);
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -17,12 +17,12 @@ import java.util.zip.GZIPOutputStream;
 /**
  * Created by Sergey on 03.11.2015.
  */
-public class CompressedStorage implements Storage {
+public class CompressedStorage extends AbstractInMemoryStorage {
     ConcurrentHashMap<String, Wrapper> map = new ConcurrentHashMap();
 
     public Transaction get(String transactionKey) {
         try {
-            Wrapper wrapper = map.get(transactionKey);
+            Wrapper wrapper = (Wrapper) getImpl(transactionKey);
 
             byte[] buffer = wrapper.getData();
 
@@ -57,7 +57,7 @@ public class CompressedStorage implements Storage {
             gout.close();
             baos.close();
 
-            map.put(transactionKey, new Wrapper(baos.toByteArray()));
+            putImpl(transactionKey, new Wrapper(baos.toByteArray()));
         } catch (Exception e) {
             e.printStackTrace();
         }

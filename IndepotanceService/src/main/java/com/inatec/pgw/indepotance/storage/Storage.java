@@ -8,4 +8,6 @@ import com.inatec.pgw.indepotance.domain.Transaction;
 public interface Storage {
     Transaction get(String transactionKey);
     void put (String transactionKey, Transaction transaction);
+    boolean exists(String transactionKey);
+    long getUsedMemory();
 }

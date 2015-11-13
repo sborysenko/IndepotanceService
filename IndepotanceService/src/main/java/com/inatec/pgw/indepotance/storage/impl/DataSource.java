@@ -11,6 +11,10 @@ import java.sql.SQLException;
  * @author Anatoly Chernysh
  */
 public class DataSource {
+//    public static final String HOST = "192.168.20.187";
+    public static final String HOST = "127.0.0.1";
+//    public static final String PORT = "3308";
+    public static final String PORT = "3306";
 
     private static DataSource datasource;
 
@@ -21,11 +25,11 @@ public class DataSource {
         ds.setDriverClassName("org.mariadb.jdbc.Driver");
         ds.setUsername("inatec");
         ds.setPassword("inatec");
-        ds.setUrl("jdbc:mariadb://192.168.20.187:3308/inatec");
+        ds.setUrl("jdbc:mariadb://" + HOST + ":" + PORT + "/inatec");
 
         // the settings below are optional -- dbcp can work with defaults
         ds.setMinIdle(5);
-        ds.setMaxIdle(20);
+        ds.setMaxIdle(50);
         ds.setMaxOpenPreparedStatements(180);
     }
 

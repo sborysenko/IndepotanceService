@@ -6,20 +6,24 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.math.BigDecimal;
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 
 /**
  * @author Anatoly Chernysh
  */
-public class DBStorage implements Storage {
+public class DBStorage extends AbstractStorage {
 
     private static Logger logger = LogManager.getLogger(DBStorage.class);
 
     @Override
     public Transaction get(String transactionKey) {
+        Connection connection = null;
         try {
-            PreparedStatement queryTransaction = DataSource.getInstance().getConnection().prepareStatement("SELECT * FROM payments WHERE PAYMENTINFO = ?");
+            connection = DataSource.getInstance().getConnection();
+            PreparedStatement queryTransaction = connection.prepareStatement("SELECT * FROM payments WHERE PAYMENTINFO = ?");
             queryTransaction.setString(1, transactionKey);
 
             ResultSet resultSet = queryTransaction.executeQuery();
@@ -32,11 +36,19 @@ public class DBStorage implements Storage {
                 return transaction;
             }
 
-//            queryTransaction.
+            queryTransaction.close();
         }
         catch (Exception e) {
             logger.error("DB get: ", e);
             return null;
+        } finally {
+            if (connection != null) {
+                try {
+                    connection.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
         }
 
         return null;
@@ -44,8 +56,11 @@ public class DBStorage implements Storage {
 
     @Override
     public void put(String transactionKey, Transaction transaction) {
+        Connection connection = null;
+
         try {
-            PreparedStatement insertTransaction = DataSource.getInstance().getConnection().prepareStatement("INSERT INTO payments (BATCHID, TRANSACTIONID, MERCHANTID, PAYMENTTYPEID, AMOUNT, PAYMENTINFO, CURRENCY) VALUES (?, ?, ?, ?, ?, ?, ?)");
+            connection = DataSource.getInstance().getConnection();
+            PreparedStatement insertTransaction = connection.prepareStatement("INSERT INTO payments (BATCHID, TRANSACTIONID, MERCHANTID, PAYMENTTYPEID, AMOUNT, PAYMENTINFO, CURRENCY) VALUES (?, ?, ?, ?, ?, ?, ?)");
             insertTransaction.setString(1, "1");
             insertTransaction.setString(2, String.valueOf(transaction.getTransactionID()));
             insertTransaction.setString(3, String.valueOf(transaction.getMerchantID()));
@@ -57,6 +72,20 @@ public class DBStorage implements Storage {
         }
         catch (Exception e) {
             logger.error("DB put: ", e);
+        } finally {
+            if (connection != null) {
+                try {
+                    connection.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
         }
+
+    }
+
+    @Override
+    public boolean exists(String transactionKey) {
+        return get(transactionKey) != null;
     }
 }

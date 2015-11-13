@@ -28,8 +28,8 @@ public class TransactionGenerator {
         transaction.setCardExpirationDate(new Date());
         transaction.setPin(Integer.parseInt(RandomStringUtils.randomNumeric(4)));
         transaction.setAmount(new BigDecimal(random.nextFloat() * (Math.pow(10, random.nextInt(5)))));
-//        transaction.setFirstName(RandomStringUtils.randomAlphabetic(random.nextInt(10)+10));
-//        transaction.setLastName(RandomStringUtils.randomAlphabetic(random.nextInt(20)+10));
+        transaction.setFirstName(RandomStringUtils.randomAlphabetic(random.nextInt(10)+10));
+        transaction.setLastName(RandomStringUtils.randomAlphabetic(random.nextInt(20)+10));
 //        transaction.setBillingAddress(RandomStringUtils.randomAlphanumeric(40));
         transaction.setTransactionStartDate(new Date());
         transaction.setTransactionType(getRandomTransactionType(random));

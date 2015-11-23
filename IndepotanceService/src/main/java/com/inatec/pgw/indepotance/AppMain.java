@@ -20,18 +20,18 @@ public class AppMain {
     private static Logger csvLogger = LogManager.getLogger("csv");
 
     public static void main(String [] args) {
-        final Storage storage = new HazelcastTwoLevelStorage();
+        final Storage storage = new RedisClusterStorage();
         final KeyProvider keyProvider = new SimpleKeyProvider();
 
         csvLogger.debug("Thread | Threads | Key provider | Storage | # | Memory Used [MB] | Insert time [ms] | Read time [ms] | Lookup time [ms]");
 
         long start = System.currentTimeMillis();
 
-        final int threadsCount = 4;
-//        final int threadsCount = 50;
+        final int threadsCount = 5;
+//        final int threadsCount = 30;
 //        final int transactionsCount = 100000;
-//        final int transactionsCount = 1000000;
-        final int transactionsCount = 43200000;
+        final int transactionsCount = 1000000;
+//        final int transactionsCount = 43200000;
 
         ExecutorService executor = Executors.newFixedThreadPool(threadsCount);
 
@@ -59,5 +59,6 @@ public class AppMain {
         long finish = System.currentTimeMillis();
 
         System.out.println("Finished in " + (finish - start) + "ms");
+        csvLogger.debug("Finished in " + (finish - start) + "ms");
     }
 }

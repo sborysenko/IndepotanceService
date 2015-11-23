@@ -4,6 +4,7 @@ import com.inatec.pgw.indepotance.domain.Transaction;
 import com.inatec.pgw.indepotance.storage.KeyProvider;
 import com.inatec.pgw.indepotance.storage.Storage;
 import com.inatec.pgw.indepotance.storage.impl.CompressedStorage;
+import com.inatec.pgw.indepotance.storage.impl.RedisClusterStorage;
 import com.inatec.pgw.indepotance.storage.impl.SimpleKeyProvider;
 import com.inatec.pgw.indepotance.testing.TransactionGenerator;
 import io.netty.handler.codec.http.HttpResponseStatus;
@@ -22,7 +23,7 @@ import sun.security.provider.certpath.Vertex;
  */
 public class IndepotanceVerticle extends AbstractVerticle {
     TransactionGenerator generator;
-    final Storage storage = new CompressedStorage();
+    final Storage storage = new RedisClusterStorage();
     final KeyProvider keyProvider = new SimpleKeyProvider();
     private int bindPort;
 
@@ -38,10 +39,9 @@ public class IndepotanceVerticle extends AbstractVerticle {
     @Override
     public void start() throws Exception {
         Router router = Router.router(getVertx());
-
         router.route().handler(BodyHandler.create());
         router.put("/tnx").handler(this::putTransaction);
-        router.post("/tnx").handler(this::getTransaction);
+        router.get("/tnx").handler(this::getTransaction);
 
         vertx.createHttpServer().requestHandler(router::accept).listen(bindPort);
     }

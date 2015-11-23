@@ -54,6 +54,7 @@ public class ExecutionThread implements Runnable {
             long loadStartTime = System.nanoTime();
             key = keyProvider.getKey(transaction);
             Transaction loaded = storage.get(key);
+//            Transaction loaded = storage.get(String.valueOf(transaction.getId()));
             long loadTime = System.nanoTime() - loadStartTime;
 
             long lookupStartTime = System.nanoTime();
@@ -72,7 +73,7 @@ public class ExecutionThread implements Runnable {
             totalRead += (double) loadTime / 1000000;
             totalLookup += (double) lookupTime / 1000000;
 
-            if (String.valueOf(threadIndex + i * threadsCount + 1).endsWith("000")) {
+            if (String.valueOf(threadIndex + i * threadsCount + 1).endsWith("0000")) {
                 System.out.println("Processed item" + (threadIndex + i * threadsCount + 1));
             }
 

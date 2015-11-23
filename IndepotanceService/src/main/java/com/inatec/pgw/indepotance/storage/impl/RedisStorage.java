@@ -13,7 +13,8 @@ import org.springframework.data.redis.core.RedisTemplate;
 public class RedisStorage extends AbstractStorage {
     private Logger logger = LogManager.getLogger(RedisStorage.class);
 //    public static final String REDIS_HOST = "192.168.20.187";
-    public static final String REDIS_HOST = "127.0.0.1";
+//    public static final String REDIS_HOST = "127.0.0.1";
+    public static final String REDIS_HOST = "192.168.163.130";
     public static final int REDIS_PORT = 6379;
 
 
@@ -34,18 +35,23 @@ public class RedisStorage extends AbstractStorage {
 
     public Transaction get(String transactionKey) {
         try {
-            return (Transaction) redisTemplate.opsForValue().get(transactionKey);
+            Object obj = redisTemplate.opsForValue().get(transactionKey);
+            if (obj != null) {
+                Transaction tnx = new Transaction();
+                tnx.setTransactionID(Long.parseLong(obj.toString()));
+            }
         } catch (Throwable e) {
             logger.error(e);
-            return null;
         }
+        return null;
     }
 
     public void put(String transactionKey, Transaction transaction) {
         try {
-            redisTemplate.opsForValue().set(transactionKey, transaction);
+            redisTemplate.opsForValue().set(transactionKey, transaction.getTransactionID());
         } catch (Throwable e) {
             logger.error(e);
+            e.printStackTrace();
         }
     }
 

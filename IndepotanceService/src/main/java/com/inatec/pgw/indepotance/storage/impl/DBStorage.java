@@ -23,8 +23,8 @@ public class DBStorage extends AbstractStorage {
         Connection connection = null;
         try {
             connection = DataSource.getInstance().getConnection();
-            PreparedStatement queryTransaction = connection.prepareStatement("SELECT * FROM payments WHERE PAYMENTINFO = ?");
-            queryTransaction.setString(1, transactionKey);
+            PreparedStatement queryTransaction = connection.prepareStatement("SELECT * FROM payments WHERE PAYMENTID = ?");
+            queryTransaction.setLong(1, Long.parseLong(transactionKey));
 
             ResultSet resultSet = queryTransaction.executeQuery();
             while (resultSet.next()) {
@@ -69,6 +69,15 @@ public class DBStorage extends AbstractStorage {
             insertTransaction.setString(6, transactionKey);
             insertTransaction.setString(7, transaction.getBaseCurrency());
             insertTransaction.execute();
+
+            try (ResultSet generatedKeys = insertTransaction.getGeneratedKeys()) {
+                if (generatedKeys.next()) {
+                    transaction.setId(generatedKeys.getLong(1));
+                }
+                else {
+                    throw new SQLException("Creating user failed, no ID obtained.");
+                }
+            }
         }
         catch (Exception e) {
             logger.error("DB put: ", e);
@@ -86,6 +95,37 @@ public class DBStorage extends AbstractStorage {
 
     @Override
     public boolean exists(String transactionKey) {
-        return get(transactionKey) != null;
+        Connection connection = null;
+        try {
+            connection = DataSource.getInstance().getConnection();
+            PreparedStatement queryTransaction = connection.prepareStatement("SELECT * FROM payments WHERE PAYMENTINFO = ?");
+            queryTransaction.setString(1, transactionKey);
+
+            ResultSet resultSet = queryTransaction.executeQuery();
+            while (resultSet.next()) {
+                Transaction transaction = new Transaction();
+                transaction.setTransactionID(resultSet.getLong(3));
+                transaction.setCardNumber(resultSet.getLong(4));
+                transaction.setBaseCurrency(resultSet.getString(6));
+                transaction.setAmount(new BigDecimal(resultSet.getLong(9)));
+                return true;
+            }
+
+            queryTransaction.close();
+        }
+        catch (Exception e) {
+            logger.error("DB get: ", e);
+            return false;
+        } finally {
+            if (connection != null) {
+                try {
+                    connection.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        return false;
     }
 }

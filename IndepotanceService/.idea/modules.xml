@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/IndepotanceService.iml" filepath="$PROJECT_DIR$/IndepotanceService.iml" />
+      <module fileurl="file://$PROJECT_DIR$/MemoryInfo/MemoryInfo.iml" filepath="$PROJECT_DIR$/MemoryInfo/MemoryInfo.iml" />
     </modules>
   </component>
 </project>

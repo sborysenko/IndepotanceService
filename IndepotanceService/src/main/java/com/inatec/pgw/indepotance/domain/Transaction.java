@@ -8,6 +8,7 @@ import java.util.Date;
  * Created by Sergey on 31.10.2015.
  */
 public class Transaction implements Serializable {
+    private long id;
     private long transactionID;
     private long merchantID;
     private long terminalID;
@@ -31,6 +32,14 @@ public class Transaction implements Serializable {
     private String errorMessage;
     private Date transactionStartDate;
     private Date transactionEndDate;
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
 
     public long getTransactionID() {
         return transactionID;
